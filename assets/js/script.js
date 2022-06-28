@@ -17,6 +17,9 @@ function getForecast(longitude, latitude) {
     })
     .then(function (response) {
       console.log(response);
+      // clear past results if any
+      currentContainer.empty();
+      fiveDayContainer.empty();
       // break response into objects
       const current = response.current;
       const daily = [];
