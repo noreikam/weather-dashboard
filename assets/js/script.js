@@ -1,6 +1,8 @@
 const apiKey = "e9ac1b37ce836e9ec26a1e2c38a33248";
-const dailyContainer = $("#dailyContainer");
+const currentContainer = $("#currentContainer");
 const searchContainer = $("#searchContainer");
+const fiveDayContainer = $("#fiveDayContainer");
+const fiveDayTitle = $("#fiveDayTitle");
 let searchCity = '';
 
 function getForecast(longitude, latitude) {
@@ -11,36 +13,65 @@ function getForecast(longitude, latitude) {
     `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=minutely,hourly,alerts&units=imperial&appid=${apiKey}`
   )
     .then(function (response) {
-      console.log("forecast as response");
-      console.log(response);
       return response.json();
     })
     .then(function (response) {
+      console.log(response);
       // break response into objects
       const current = response.current;
+      const daily = [];
+      for (let i=0; i<5; i++) {
+        daily[i] = response.daily[i];
+      }
       console.log(current);
+      console.log(daily);
       // show city and date
-      let date = new Date();
+      let today = new Date();
       const cityDiv = $("<h2>")
-        .text(searchCity + " (" + date.toDateString() + ")");
-      dailyContainer.append(cityDiv);
+        .text(searchCity + " (" + today.toDateString() + ")");
+      currentContainer.append(cityDiv);
       // append temp
       let tempDiv = $("<p>")
-        .text("Temperature: " + current.temp + " \u2103F");
-      dailyContainer.append(tempDiv);
+        .text("Temp: " + current.temp + " \u00B0F");
+      currentContainer.append(tempDiv);
       // append wind
       let windDiv = $("<p>")
         .text("Wind: " + current.wind_speed + " MPH");
-        dailyContainer.append(windDiv);
+        currentContainer.append(windDiv);
       // append humidity
       let humidityDiv = $("<p>")
         .text("Humidity: " + current.humidity + " %")
-        dailyContainer.append(humidityDiv);
+        currentContainer.append(humidityDiv);
       // append uv index
       let uvDiv = $("<p>")
         .text("UV Index: " + current.uvi);
-      dailyContainer.append(uvDiv);
+      currentContainer.append(uvDiv);
 
+      // daily card
+      fiveDayTitle.removeClass("d-none");
+      for (let i=0; i<5; i++) {
+        let dailyCard = $("<card>")
+          .addClass("dailyCard");
+        // append date
+        today.setDate(today.getDate() + 1);
+        let dateDiv = $("<p>")
+          .text(today.toDateString());
+        dailyCard.append(dateDiv);
+        // append temp
+        let tempDiv = $("<p>")
+          .text("Temp: " + daily[i].temp.day + " \u00B0F");
+        dailyCard.append(tempDiv);
+        // append wind
+        let windDiv = $("<p>")
+          .text("Wind: " + daily[i].wind_speed + " MPH");
+        dailyCard.append(windDiv);
+        // append humidity
+        let humidityDiv = $("<p>")
+          .text("Humidity: " + daily[i].humidity + " %")
+        dailyCard.append(humidityDiv);
+        // append card to fiveDayContainer
+        fiveDayContainer.append(dailyCard);
+      }
     })
 
 }
